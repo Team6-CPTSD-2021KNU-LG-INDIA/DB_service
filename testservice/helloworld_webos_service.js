@@ -14,6 +14,7 @@ const Service = require('webos-service');
 const service = new Service(pkgInfo.name); // Create service by service name on package.json
 const logHeader = "[" + pkgInfo.name + "]";
 let greeting = "Hello, World!";
+const service_name='luna-send -n 1 -f -m com.palm.configurator luna://com.webos.service.db/';
 
 // a method that always returns the same value
 service.register("hello", function(message) {
@@ -170,33 +171,11 @@ service.register("ping", function(message) {
         message.respond({msg: "Created activity "+ activityId});
     });
 });
-//init
-service.register("initiateP2p",function(message){
-    const checkp2p
-    const service_call='luna-send -n 1 -f luna://com.webos.service.wifi/p2p/'
-    const call_spec={"P2P": "enabled", "listenState": "disabled", "persistentMode": "disabled"};
 
-    service.call(service_call+'getstate',{},function(reply){
-        checkp2p=reply.payload.P2P;
-    });
-
-    if(checkp2p=="disabled"){
-        service.call(service_call+'setstate',call_spec,function(reply){
-            message.respond({msg: "initiated p2p"});
-        });
-    }else{
-        message.respond({msg: "p2p is already working"});
-    }
-
-});
-//luna-send -i -f luna://com.webos.service.wifi/p2p/getp2p/requests '{"subscribe":true}'
-//luna-send -n 1 -f luna://com.webos.service.wifi/p2p/setlistenparams '{"period" : 100, "interval": 500}'
-//luna-send -n 1 -f luna://com.webos.service.wifi/p2p/setlistenchannel '{"listenChannel" : 6}'
 //list
 //send_message
 //recieve_message
 service.register("createDB",function(message){
-    const service_name='luna-send -n 1 -f -m com.palm.configurator luna://com.webos.service.db/';
     const query={"query": {"from":"com.webos.service.event:1"}};
     const kind={ 
         "id":"com.webos.service.event:1",
@@ -205,10 +184,10 @@ service.register("createDB",function(message){
             "type":"object",
             "properties":{
                 "startTime":{
-                    "type":"string"
+                    "type":"Date"
                 },
                 "endTime":{
-                    "type":"string"
+                    "type":"Date"
                 },
                 "repeat":{
                     "type":"boolean"
@@ -256,21 +235,41 @@ service.register("createDB",function(message){
 });
 
 service.register("enrollEvent",function(message){
+    const start_time=new Date(message.payload.startTime);
+    const end_time=new Date(message.payload.endTime);
+    const kind_object={
+        "objects":[ 
+          { 
+             "_kind":"com.webos.service.event:1",
+             "startTime":start_time,
+             "endTime":end_time,
+             "repeat":message.payload.repeat,
+             "content":message.payload.content
+        }
+    ]}
 
+    service.call(service_name+'put',kind_object);
 });
 
 service.register("ListEvent",function(message){
-    const service_name='luna-send -n 1 -f -m com.palm.configurator luna://com.webos.service.db/';
+    const start_time=new Date(message.payload.startTime);
+    const end_time=new Date(message.payload.endTime);
     const query={
         "query": {
-            "from":"com.webos.service.employees:3",
+            "from":"com.webos.service.event:1",
             "where":[
-                {"prop":"Location",
-                "op":"=",
-                "val":"Bangalore"}
+                {"prop":"startTime",
+                "op":">=",
+                "val":start_time}
+            ],
+            "where":[
+                {"prop":"endTime",
+                "op":"<=",
+                "val":end_time}
             ]
         }
     };
+    service.call(service_name+'find',query);
 });
 
 // luna-send -n 1 -f -m com.palm.configurator luna://com.webos.service.db/find '{"query": {"from":"com.webos.service.employees:3"}}'
