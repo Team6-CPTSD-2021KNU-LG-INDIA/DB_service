@@ -27,7 +27,7 @@ SPDX-License-Identifier: Apache-2.0
         color:#FFFFFF;
     }
 </style>
-<script type="text/javascript">
+<script type="text/javascript" charset="utf-8" src="service.js">
 window.onload = function() {
     var bridge = new WebOSServiceBridge();
     /*
@@ -82,7 +82,14 @@ window.onload = function() {
 </head>
 <body>
     <div>
-        <h1 id="txt_msg">Hello, Web Application!!</h1>
+        <p id="txt_msg">Hello, Web Application!!</p>
+        <input type="text" >
+    </div>
+    <div>
+        <button>enroll</button>
+        <button>delete</button>
+        <button>modify</button>
+        <button>list</button>
     </div>
 </body>
 </html>
