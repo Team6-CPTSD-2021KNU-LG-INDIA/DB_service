@@ -272,19 +272,3 @@ service.register("ListEvent",function(message){
     service.call(service_name+'find',query);
 });
 
-// luna-send -n 1 -f -m com.palm.configurator luna://com.webos.service.db/find '{"query": {"from":"com.webos.service.employees:3"}}'
-service.register("pong", function(message) {
-    console.log(logHeader, "SERVICE_METHOD_CALLED:/pong");
-    console.log("Pong!");
-    console.log(message.payload);
-    message.respond({message: "Pong"});
-});
-
-service.register("/do/re/me", function(message) {
-    console.log(logHeader, "SERVICE_METHOD_CALLED://do/re/me");
-    message.respond({verses:[
-        {doe: "a deer, a female deer"},
-        {ray: "a drop of golden sun"},
-        {me: "a name I call myself"}
-    ]});
-});
